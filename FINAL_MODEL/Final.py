@@ -1,13 +1,7 @@
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
-
-from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-import tensorflow as tf
 
 # -------------------------------
 # PAGE CONFIG
@@ -95,7 +89,7 @@ elif st.session_state.page == "app":
     # SIDEBAR
     # -------------------------------
     st.sidebar.title("Controls")
-    st.sidebar.info("Model: LSTM + XGBoost (Ensemble)")
+    st.sidebar.info("Model: Lightweight Prediction (Demo Mode)")
 
     if st.sidebar.button("⬅ Back"):
         st.session_state.page = "home"
@@ -151,45 +145,14 @@ elif st.session_state.page == "app":
     st.markdown("---")
 
     # -------------------------------
-    # 🔮 PREDICTION
+    # 🔮 SIMPLE PREDICTION (SAFE)
     # -------------------------------
-    tf.keras.backend.clear_session()
-
     values = player_df[['market_value_eur']].dropna().values
 
-    if len(values) >= 3:
-
-        scaler = MinMaxScaler()
-        scaled = scaler.fit_transform(values)
-
-        def create_seq(data, steps=2):
-            X, y = [], []
-            for i in range(len(data) - steps):
-                X.append(data[i:i+steps])
-                y.append(data[i+steps])
-            return np.array(X), np.array(y)
-
-        X, y = create_seq(scaled)
-
-        if len(X) > 0:
-            try:
-                model = Sequential([
-                    LSTM(50, input_shape=(X.shape[1], 1)),
-                    Dense(1)
-                ])
-                model.compile(optimizer='adam', loss='mse')
-                model.fit(X, y, epochs=5, verbose=0)
-
-                last_seq = X[-1]
-                pred = model.predict(last_seq.reshape(1, last_seq.shape[0], 1), verbose=0)
-                predicted_value = scaler.inverse_transform(pred)[0][0]
-
-            except:
-                predicted_value = values[-1][0] * 1.05
-        else:
-            predicted_value = values[-1][0] * 1.05
-    else:
+    if len(values) > 0:
         predicted_value = values[-1][0] * 1.05
+    else:
+        predicted_value = 0
 
     st.markdown(f"""
     <div class="prediction-box">
