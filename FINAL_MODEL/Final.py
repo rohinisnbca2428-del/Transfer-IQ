@@ -81,9 +81,14 @@ elif st.session_state.page == "app":
     uploaded_file = st.file_uploader("Upload Dataset", type=["csv"])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-    else:
+    df = pd.read_csv(uploaded_file)
+else:
+    try:
         df = pd.read_csv("player_transfer_value_with_sentiment.csv")
+    except:
+        st.warning("⚠️ Please upload a dataset to continue.")
+        st.stop()
+        df = pd.read_csv(uploaded_file)
 
     # -------------------------------
     # SIDEBAR
